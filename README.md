@@ -63,9 +63,10 @@ docker-compose up -d --build
 
 ---
 
-## 📧 Contact Information
+## 📧 Contact & Social
 
 *   **Senior Consultant**: 보안 전문가
+*   **YouTube Channel**: [@SecurityReport-K](https://www.youtube.com/@SecurityReport-K) (Security Analysis & Reports)
 *   **Technical Support**: gimjonghwan319@gmail.com
 *   **Project Vision**: *“Intelligence beyond boundaries, Security within control.”*
 

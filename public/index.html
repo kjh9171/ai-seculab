@@ -225,8 +225,9 @@
                             <h1 className="text-2xl tracking-tighter" onClick={() => setView('home')}>
                                 AI <span className="text-indigo-500">Seculab</span>
                             </h1>
-                            <nav className="flex gap-10 text-[11px] uppercase tracking-widest text-slate-500">
+                            <nav className="flex gap-10 text-[11px] uppercase tracking-widest text-slate-500 items-center">
                                 <button onClick={() => setView('home')} className="hover:text-indigo-400 transition-all">Home</button>
+                                <a href="https://www.youtube.com/@SecurityReport-K" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 font-normal transition-all">YouTube</a>
                                 <button onClick={handleAdminEntry} className="text-indigo-500 font-normal">
                                     {view === 'admin' ? 'Logout' : 'Admin'}
                                 </button>
@@ -430,7 +431,10 @@
 
                     <footer className="py-20 border-t border-black/5 dark:border-white/5 opacity-50 mt-20">
                         <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[9px] tracking-[0.3em] uppercase">
-                            <div>Admin: 보안 전문가</div>
+                            <div className="space-y-2">
+                                <div>Admin: 보안 전문가</div>
+                                <a href="https://www.youtube.com/@SecurityReport-K" target="_blank" rel="noopener noreferrer" className="block hover:text-red-500 transition-colors">YouTube: @SecurityReport-K</a>
+                            </div>
                             <div>© 2026 AI SECULAB (Internal Mode)</div>
                         </div>
                     </footer>
