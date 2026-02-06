@@ -222,12 +222,12 @@
                 <div className="min-h-screen flex flex-col">
                     <header className="fixed top-0 w-full z-50 glass border-b border-black/5 dark:border-white/5">
                         <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
-                            <h1 className="text-2xl tracking-tighter" onClick={() => setView('home')}>
+                            <h1 className="text-2xl tracking-tighter cursor-pointer" onClick={() => setView('home')}>
                                 AI <span className="text-indigo-500">Seculab</span>
                             </h1>
                             <nav className="flex gap-10 text-[11px] uppercase tracking-widest text-slate-500 items-center">
                                 <button onClick={() => setView('home')} className="hover:text-indigo-400 transition-all">Home</button>
-                                <a href="https://www.youtube.com/@SecurityReport-K" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 font-normal transition-all">YouTube</a>
+                                <a href="#expertise" onClick={() => setView('home')} className="hover:text-indigo-400 transition-all">Intelligence</a>
                                 <button onClick={handleAdminEntry} className="text-indigo-500 font-normal">
                                     {view === 'admin' ? 'Logout' : 'Admin'}
                                 </button>
@@ -373,6 +373,53 @@
                         </main>
                     )}
 
+                    {view === 'company' && (
+                        <main className="flex-grow pt-40 px-8">
+                            <div className="max-w-4xl mx-auto space-y-20">
+                                <h2 className="text-5xl font-normal tracking-tighter">About AI Seculab</h2>
+                                <p className="text-xl text-slate-400 leading-relaxed">
+                                    AI Seculab은 급변하는 사이버 위협 환경에서 기업의 핵심 자산을 보호하기 위해 탄생했습니다.
+                                    우리는 단순한 보안 도구 제공을 넘어, AI 기반의 지능형 분석과 전문가의 깊은 통찰을 결합하여
+                                    고객사에 최적화된 맞춤형 보안 거버넌스를 구축합니다.
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="p-10 glass">
+                                        <h4 className="text-indigo-500 mb-4 uppercase tracking-widest text-xs">Mission</h4>
+                                        <p className="text-lg">모든 비즈니스의 안전한 디지털 전환을 지원하며, 보안을 성장의 가속 장치로 만드는 것.</p>
+                                    </div>
+                                    <div className="p-10 glass">
+                                        <h4 className="text-indigo-500 mb-4 uppercase tracking-widest text-xs">Vision</h4>
+                                        <p className="text-lg">글로벌 수준의 폐쇄형 지능 보안망을 구축하여 데이터 주권을 완벽히 수호하는 글로벌 보안 파트너.</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setView('home')} className="px-10 py-4 bg-slate-900 text-white dark:bg-indigo-600 text-xs tracking-widest uppercase mt-20">Back to Page</button>
+                            </div>
+                        </main>
+                    )}
+
+                    {view === 'privacy' && (
+                        <main className="flex-grow pt-40 px-8">
+                            <div className="max-w-4xl mx-auto space-y-12">
+                                <h2 className="text-4xl font-normal">개인정보처리방침</h2>
+                                <div className="p-10 glass space-y-8 text-sm text-slate-500 leading-loose">
+                                    <div>
+                                        <h4 className="text-slate-900 dark:text-white mb-2 font-normal">1. 개인정보의 수집 항목 및 목적</h4>
+                                        <p>수집 항목: 성함, 이메일 주소, 문의 내용<br />목적: 서비스 안내를 위한 전문가 상담 및 고객 대응</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-slate-900 dark:text-white mb-2 font-normal">2. 보유 및 이용 기간</h4>
+                                        <p>상담 목적이 달성되거나 고객의 파기 요청이 있을 때까지 보유하며, 원칙적으로 상담 종료 후 즉시 파기합니다.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-slate-900 dark:text-white mb-2 font-normal">3. 데이터 보안 및 독립성</h4>
+                                        <p>수집된 모든 데이터는 외부 클라우드로 전송되지 않으며, 당사의 독립적인 보안 서버(Internal Hub) 내부에서만 엄격히 관리됩니다.</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setView('home')} className="px-10 py-4 bg-slate-900 text-white dark:bg-indigo-600 text-xs tracking-widest uppercase">Close</button>
+                            </div>
+                        </main>
+                    )}
+
                     {view === 'setup' && (
                         <main className="flex-grow pt-40 flex flex-col items-center">
                             <div className="max-w-md w-full glass p-10 text-center space-y-8">
@@ -430,12 +477,16 @@
                     )}
 
                     <footer className="py-20 border-t border-black/5 dark:border-white/5 opacity-50 mt-20">
-                        <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[9px] tracking-[0.3em] uppercase">
-                            <div className="space-y-2">
-                                <div>Admin: 보안 전문가</div>
-                                <a href="https://www.youtube.com/@SecurityReport-K" target="_blank" rel="noopener noreferrer" className="block hover:text-red-500 transition-colors">YouTube: @SecurityReport-K</a>
+                        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-10 text-[9px] tracking-[0.3em] uppercase">
+                            <div className="flex gap-10">
+                                <button onClick={() => setView('company')} className="hover:text-indigo-500 transition-all">About Us</button>
+                                <button onClick={() => setView('privacy')} className="hover:text-indigo-500 transition-all">Privacy Policy</button>
+                                <a href="https://www.youtube.com/@SecurityReport-K" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-all">YouTube</a>
                             </div>
-                            <div>© 2026 AI SECULAB (Internal Mode)</div>
+                            <div className="text-center">
+                                <div>Admin: 보안 전문가</div>
+                                <div className="mt-2">© 2026 AI SECULAB (Internal Mode)</div>
+                            </div>
                         </div>
                     </footer>
                 </div>
