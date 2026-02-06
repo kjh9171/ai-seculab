@@ -1,53 +1,73 @@
-# AI Seculab - 지능형 보안 인텔리전스 플랫폼 (Secure Internal Mode)
+# AI Seculab: Advanced Security Intelligence Platform
 
-AI Seculab은 외부 클라우드 서비스와의 연동 없이, 본인의 서버 내부에서 모든 데이터를 격리 관리하는 **보안 특화형 어드민 플랫폼**입니다.
+![Security](https://img.shields.io/badge/Security-Intelligence-blue.svg)
+![Auth](https://img.shields.io/badge/Auth-Google%20OTP-orange.svg)
+![Docker](https://img.shields.io/badge/Infrastructure-Docker-blue.svg)
 
-## 🛡 주요 보안 특징
+AI Seculab은 전문 보안 컨설턴트의 통찰력과 현대적인 AI 보안 인텔리전스를 결합한 **독립형 보안 관리 플랫폼**입니다. 외부 클라우드 의존성을 완전히 제거하고, 폐쇄망 환경에서도 운영 가능한 **Self-Hosted 아키텍처**를 지향합니다.
 
-### 1. Zero-Cloud / Self-Hosted
-*   **완벽한 격리**: Firebase 등 외부 DB를 사용하지 않고, 도커 컨테이너 내부의 `data.json` 파일을 통해서만 문의사항과 설정을 관리합니다.
-*   **데이터 주권**: 고객의 문의 내용이 외부망으로 흐르지 않아 정보 보안성이 최상 수준으로 유지됩니다.
+---
 
-### 2. Google OTP 기반 2단계 인증 (Password-less)
-*   소스 코드나 DB에 고정된 암호를 저장하지 않습니다.
-*   **최초 실행 시**: 생성되는 QR 코드를 스마트폰(Google Authenticator)으로 스캔하여 보안 동기화를 진행합니다.
-*   **이후 접속**: 매번 갱신되는 6자리 OTP 번호로만 관리자 화면에 접근할 수 있습니다.
+## 🛡️ Core Security Architecture
 
-### 3. 영구 데이터 보존
-*   Docker Volume 기능을 활용하여 컨테이너가 재시작되거나 업데이트되어도 문의 내역과 보안 설정이 유지됩니다.
+### 1. Zero-Cloud Intelligence (가용성 및 주권 보장)
+*   **Data Sovereignty**: 모든 데이터는 관리자의 로컬 인프라(Docker Container) 내부 `data.json`에만 기록됩니다. 외부 API 호출이나 클라우드 전송이 원천 차단된 진정한 의미의 보안 주권을 실현합니다.
+*   **Internal Pipeline**: 문의사항 접수부터 관리자 피드백까지 모든 흐름이 내부 API를 통해 격리되어 처리됩니다.
 
-## 🛠 기술 스택
-*   **Backend**: Node.js, Express (Internal API)
-*   **Security**: TOTP (Time-based One-Time Password)
-*   **Frontend**: React (Single File Component), Tailwind CSS
-*   **Infrastructure**: Docker, Docker-Compose
+### 2. Password-less OTP Authentication (최상위 보안 인증)
+*   **TOTP 기반 2FA**: 고정된 하드코딩 암호를 배제하고, Google Authenticator와 연동되는 **Time-based One-Time Password(TOTP)** 시스템을 탑재했습니다.
+*   **Secure Provisioning**: 최초 실행 시 1회에 한하여 QR 코드를 이용한 보안 프로비저닝을 수행하며, 이후에는 6자리 가변 코드로만 접근이 허용됩니다.
 
-## 📦 실행 및 초기 설정 방법
+### 3. Integrated Threat Visualization (데이터 기반 통찰)
+*   **Heuristic Analysis Rendering**: HTML5 Canvas를 활용한 지능형 배경 애니메이션은 사이버 위협 탐지망의 밀도와 연결성을 상징적으로 표현합니다.
+*   **Live Risk Simulation**: Chart.js 기반의 대시보드는 비즈니스가 직면한 리스크 지표를 실시간으로 시뮬레이션하여 시각화합니다.
 
-### 1. 서비스 실행
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React (SFC), Tailwind CSS, Chart.js, Canvas API |
+| **Backend** | Node.js (Express), Internal Secure API |
+| **Security** | otplib (TOTP), qrcode (Provisioning) |
+| **Infrastructure** | Docker, Docker-Compose (Automated Orchestration) |
+
+---
+
+## 📦 Deployment & Configuration
+
+### 1. Quick Start
+Docker 환경이 구축된 서버에서 아래 명령어를 실행하십시오.
+
 ```bash
-# 저장소 복제 및 이동
+# Repository Cloning
 git clone https://github.com/kjh9171/ai-seculab.git
 cd ai-seculab
 
-# 서비스 빌드 및 실행
+# Service Build & Launch
 docker-compose up -d --build
 ```
+서비스는 기본적으로 **[http://localhost:8080](http://localhost:8080)**에서 구동됩니다.
 
-### 2. 초기 보안 설정 (최초 1회)
-1.  브라우저에서 [http://localhost:8080](http://localhost:8080) 접속
-2.  우측 상단 **`Admin`** 버튼 클릭
-3.  화면에 나타나는 **QR 코드를 스마트폰의 Google Authenticator 앱으로 스캔**
-4.  앱에 표시된 6자리 코드를 입력하여 설정 완료
+### 2. Admin Security Setup (최초 1회 필수)
+1.  홈페이지 접속 후 우측 상단의 **`Admin`** 메뉴를 클릭합니다.
+2.  화면에 표시되는 고유 QR 코드를 **Google Authenticator** 앱으로 스캔합니다.
+3.  앱에 등록된 6자리 번호를 입력하여 인증 장치 등록을 완료합니다.
+4.  *보안 경고: 한 번 설정이 완료되면 QR 코드는 더 이상 노출되지 않습니다.*
 
-### 3. 암호 분실 시 조치 방법
-OTP 설정을 초기화하고 싶거나 스마트폰을 분실했을 경우:
-1.  서버 내부의 `data.json` 파일을 삭제합니다.
-2.  서비스를 재시작(`docker-compose restart`)하면 다시 초기 QR 코드가 생성됩니다.
+### 3. Recovery & Reset (비상 조치)
+보안 장치(스마트폰) 분실 등으로 인증이 불가능할 경우:
+1.  `data.json` 파일을 백업 후 삭제합니다.
+2.  컨테이너를 재시작(`docker-compose restart`)하면 보안 프로비저닝 단계로 초기화됩니다.
 
-## 📧 연락처
-*   **Expert**: 보안 전문가
-*   **Email**: gimjonghwan319@gmail.com
+---
+
+## 📧 Contact Information
+
+*   **Senior Consultant**: 보안 전문가
+*   **Technical Support**: gimjonghwan319@gmail.com
+*   **Project Vision**: *“Intelligence beyond boundaries, Security within control.”*
 
 ---
 © 2026 AI SECULAB. ALL RIGHTS RESERVED.
