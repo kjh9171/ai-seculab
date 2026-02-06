@@ -1,9 +1,11 @@
 services:
-  web:
+  app:
     build: .
-    container_name: ai-seculab-app
+    container_name: ai-seculab-core
     ports:
-      - "8080:80"
+      - "8080:3000"
+    volumes:
+      - ./data.json:/app/data.json # 데이터 영구 보존 및 외부 유출 방지
     restart: always
     environment:
       - NODE_ENV=production

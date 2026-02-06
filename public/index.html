@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Seculab | Advanced Security Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #334155;
+            margin: 0;
+            transition: all 0.5s ease;
+        }
+
+        * {
+            font-weight: 300 !important;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark-theme {
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+
+        .dark-theme .glass {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        canvas#hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 메인 애플리케이션 ---
+        const App = () => {
+            const [view, setView] = React.useState('home');
+            const [isDark, setIsDark] = React.useState(false);
+            const [setupStatus, setSetupStatus] = React.useState({ setupDone: false });
+            const [qrCode, setQrCode] = React.useState('');
+            const [isAdminAuth, setIsAdminAuth] = React.useState(false);
+            const [inquiries, setInquiries] = React.useState([]);
+            const [formData, setFormData] = React.useState({ name: '', email: '', message: '' });
+
+            React.useEffect(() => {
+                const checkStatus = async () => {
+                    const res = await fetch('/api/admin/status');
+                    const data = await res.json();
+                    setSetupStatus(data);
+                };
+                checkStatus();
+            }, []);
+
+            React.useEffect(() => {
+                if (isDark) document.body.classList.add('dark-theme');
+                else document.body.classList.remove('dark-theme');
+            }, [isDark]);
+
+            // 문의하기 제출
+            const handleInquirySubmit = async (e) => {
+                e.preventDefault();
+                const res = await fetch('/api/inquiries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                if (res.ok) {
+                    alert('문의사항이 보안 서버에 안전하게 기록되었습니다.');
+                    setFormData({ name: '', email: '', message: '' });
+                }
+            };
+
+            // OTP 로그인 및 셋업
+            const handleAdminEntry = async () => {
+                if (view === 'admin') { setView('home'); return; }
+
+                if (!setupStatus.setupDone) {
+                    // 최초 셋업: QR코드 요청
+                    const res = await fetch('/api/admin/setup');
+                    const data = await res.json();
+                    setQrCode(data.qr);
+                    setView('setup');
+                } else {
+                    // 로그인 시도
+                    const token = prompt('Google OTP(6자리)를 입력하십시오:');
+                    if (!token) return;
+                    const res = await fetch('/api/admin/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+                    if (res.ok) {
+                        setIsAdminAuth(true);
+                        setView('admin');
+                        fetchInquiries();
+                    } else {
+                        alert('인증 코드가 일치하지 않습니다.');
+                    }
+                }
+            };
+
+            const confirmSetup = async (token) => {
+                const res = await fetch('/api/admin/setup-confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                if (res.ok) {
+                    alert('보안 인증 설정이 완료되었습니다.');
+                    setSetupStatus({ setupDone: true });
+                    setView('home');
+                } else {
+                    alert('잘못된 코드입니다.');
+                }
+            };
+
+            const fetchInquiries = async () => {
+                const res = await fetch('/api/admin/inquiries');
+                const data = await res.json();
+                setInquiries(data);
+            };
+
+            const updateInquiryStatus = async (id, currentStatus) => {
+                const status = currentStatus === 'completed' ? 'pending' : 'completed';
+                await fetch('/api/admin/inquiries/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, status })
+                });
+                fetchInquiries();
+            };
+
+            // 히어로 캔버스
+            React.useEffect(() => {
+                const canvas = document.getElementById('hero-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let pts = [];
+                const init = () => {
+                    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                    pts = Array.from({ length: 40 }, () => ({
+                        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5
+                    }));
+                };
+                const anim = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.strokeStyle = isDark ? 'rgba(99,102,241,0.2)' : 'rgba(148,163,184,0.4)';
+                    pts.forEach((p, i) => {
+                        p.x += p.vx; p.y += p.vy;
+                        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                        for (let j = i + 1; j < pts.length; j++) {
+                            const d = Math.sqrt((p.x - pts[j].x) ** 2 + (p.y - pts[j].y) ** 2);
+                            if (d < 150) {
+                                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
+                            }
+                        }
+                    });
+                    requestAnimationFrame(anim);
+                };
+                init(); anim();
+                window.addEventListener('resize', init);
+                return () => window.removeEventListener('resize', init);
+            }, [isDark, view]);
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="fixed top-0 w-full z-50 glass border-b border-black/5 dark:border-white/5">
+                        <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+                            <h1 className="text-2xl tracking-tighter" onClick={() => setView('home')}>
+                                AI <span className="text-indigo-500">Seculab</span>
+                            </h1>
+                            <nav className="flex gap-10 text-[11px] uppercase tracking-widest text-slate-500">
+                                <button onClick={() => setView('home')} className="hover:text-indigo-400 transition-all">Home</button>
+                                <button onClick={handleAdminEntry} className="text-indigo-500 font-normal">
+                                    {view === 'admin' ? 'Logout' : 'Admin'}
+                                </button>
+                                <button onClick={() => setIsDark(!isDark)} className="text-slate-400">
+                                    {isDark ? 'Light' : 'Dark'}
+                                </button>
+                            </nav>
+                        </div>
+                    </header>
+
+                    {view === 'home' && (
+                        <main className="flex-grow pt-20">
+                            <section id="hero" className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+                                <canvas id="hero-canvas"></canvas>
+                                <div className="relative z-10 text-center px-4 max-w-4xl">
+                                    <span className="text-[10px] tracking-[0.5em] text-indigo-400 uppercase mb-8 block">Secure Intelligence Hub</span>
+                                    <h2 className="text-5xl md:text-7xl mb-10 leading-tight">지능형 보안의 <br />새로운 패러다임.</h2>
+                                    <p className="text-lg text-slate-400 mb-12">외부 망과 격리된 독자적인 보안 관리 솔루션을 경험하십시오.</p>
+                                    <a href="#contact" className="px-10 py-4 bg-slate-900 text-white dark:bg-indigo-600 text-xs tracking-widest hover:scale-105 transition-all">상담 신청하기</a>
+                                </div>
+                            </section>
+
+                            <section id="contact" className="py-40 bg-slate-50 dark:bg-slate-900/30">
+                                <div className="max-w-3xl mx-auto px-8">
+                                    <h2 className="text-3xl mb-16 text-center">Inquiry</h2>
+                                    <form onSubmit={handleInquirySubmit} className="space-y-10">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                            <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="성함" className="bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full" required />
+                                            <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="이메일" className="bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full" required />
+                                        </div>
+                                        <textarea value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="상세 문의 내용" rows="4" className="bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full resize-none" required></textarea>
+                                        <button className="w-full py-5 bg-slate-900 text-white dark:bg-indigo-600 text-[10px] tracking-widest uppercase hover:opacity-90 transition-all">Submit to Secure Pipeline</button>
+                                    </form>
+                                </div>
+                            </section>
+                        </main>
+                    )}
+
+                    {view === 'setup' && (
+                        <main className="flex-grow pt-40 flex flex-col items-center">
+                            <div className="max-w-md w-full glass p-10 text-center space-y-8">
+                                <h3 className="text-2xl">OTP 보안 설정</h3>
+                                <p className="text-sm text-slate-400">스마트폰의 Google Authenticator 앱으로 아래 QR코드를 스캔하십시오.</p>
+                                <img src={qrCode} alt="OTP QR" className="mx-auto border-8 border-white" />
+                                <div className="space-y-4">
+                                    <p className="text-xs text-slate-500">스캔 후 생성된 6자리 코드를 입력하여 설정을 완료하십시오.</p>
+                                    <input type="text" maxLength="6" id="setupToken" className="w-full bg-slate-100 dark:bg-slate-800 p-4 text-center tracking-[1em] text-xl" />
+                                    <button onClick={() => confirmSetup(document.getElementById('setupToken').value)} className="w-full py-4 bg-indigo-600 text-white text-xs tracking-widest uppercase">설정 완료</button>
+                                </div>
+                            </div>
+                        </main>
+                    )}
+
+                    {view === 'admin' && isAdminAuth && (
+                        <main className="flex-grow pt-40 px-8">
+                            <div className="max-w-6xl mx-auto">
+                                <div className="flex justify-between items-end mb-16">
+                                    <h2 className="text-4xl font-normal">Internal Intelligence Pipeline</h2>
+                                    <span className="text-xs text-indigo-400 tracking-widest">{inquiries.length} SECURE RECORDS</span>
+                                </div>
+                                <div className="glass overflow-hidden border border-black/5 dark:border-white/5">
+                                    <table className="w-full text-left text-xs">
+                                        <thead className="bg-slate-50 dark:bg-slate-800 text-slate-400 uppercase tracking-widest">
+                                            <tr>
+                                                <th className="px-8 py-6">Status</th>
+                                                <th className="px-8 py-6">Client Identity</th>
+                                                <th className="px-8 py-6">Intelligence Content</th>
+                                                <th className="px-8 py-6 text-right">Received</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-black/5 dark:divide-white/5">
+                                            {inquiries.map(item => (
+                                                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all">
+                                                    <td className="px-8 py-8">
+                                                        <button onClick={() => updateInquiryStatus(item.id, item.status)} className={`px-3 py-1 border text-[9px] ${item.status === 'completed' ? 'border-indigo-500 text-indigo-400' : 'border-slate-300 text-slate-400'}`}>
+                                                            {item.status?.toUpperCase()}
+                                                        </button>
+                                                    </td>
+                                                    <td className="px-8 py-8">
+                                                        <div className="text-sm dark:text-white mb-1">{item.name}</div>
+                                                        <div className="text-slate-400">{item.email}</div>
+                                                    </td>
+                                                    <td className="px-8 py-8 text-slate-400 max-w-sm">{item.message}</td>
+                                                    <td className="px-8 py-8 text-right text-slate-300">{new Date(item.createdAt).toLocaleDateString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    {inquiries.length === 0 && <div className="py-20 text-center text-slate-400">데이터 접수 내역이 없습니다.</div>}
+                                </div>
+                            </div>
+                        </main>
+                    )}
+
+                    <footer className="py-20 border-t border-black/5 dark:border-white/5 opacity-50 mt-20">
+                        <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[9px] tracking-[0.3em] uppercase">
+                            <div>Admin: 보안 전문가</div>
+                            <div>© 2026 AI SECULAB (Internal Mode)</div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
