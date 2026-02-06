@@ -184,8 +184,38 @@
                     requestAnimationFrame(anim);
                 };
                 init(); anim();
+
+                // 서비스 상세 차트 초기화 (취약점 탐지 데모)
+                const vulnCtx = document.getElementById('chart-vuln')?.getContext('2d');
+                let vulnChart;
+                if (vulnCtx) {
+                    vulnChart = new Chart(vulnCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['12:00', '13:00', '14:00', '15:00', '16:00'],
+                            datasets: [{
+                                data: [12, 19, 15, 25, 22],
+                                borderColor: isDark ? '#6366f1' : '#1e293b',
+                                borderWidth: 1,
+                                pointRadius: 0,
+                                fill: false,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { y: { display: false }, x: { display: false } }
+                        }
+                    });
+                }
+
                 window.addEventListener('resize', init);
-                return () => window.removeEventListener('resize', init);
+                return () => {
+                    window.removeEventListener('resize', init);
+                    if (vulnChart) vulnChart.destroy();
+                };
             }, [isDark, view]);
 
             return (
@@ -209,26 +239,133 @@
 
                     {view === 'home' && (
                         <main className="flex-grow pt-20">
-                            <section id="hero" className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+                            {/* Hero Section */}
+                            <section id="hero" className="relative h-[90vh] flex items-center justify-center overflow-hidden">
                                 <canvas id="hero-canvas"></canvas>
                                 <div className="relative z-10 text-center px-4 max-w-4xl">
-                                    <span className="text-[10px] tracking-[0.5em] text-indigo-400 uppercase mb-8 block">Secure Intelligence Hub</span>
-                                    <h2 className="text-5xl md:text-7xl mb-10 leading-tight">지능형 보안의 <br />새로운 패러다임.</h2>
-                                    <p className="text-lg text-slate-400 mb-12">외부 망과 격리된 독자적인 보안 관리 솔루션을 경험하십시오.</p>
-                                    <a href="#contact" className="px-10 py-4 bg-slate-900 text-white dark:bg-indigo-600 text-xs tracking-widest hover:scale-105 transition-all">상담 신청하기</a>
+                                    <span className="text-[10px] tracking-[0.6em] text-indigo-500 uppercase mb-10 block animate-pulse">Next-Gen Intelligence Architecture</span>
+                                    <h2 className="text-5xl md:text-8xl mb-12 leading-[1.1] font-normal tracking-tighter">
+                                        보안의 지능화,<br />
+                                        <span className="text-slate-400">그 이상의 가치.</span>
+                                    </h2>
+                                    <p className="text-xl text-slate-400 mb-16 leading-relaxed max-w-2xl mx-auto">
+                                        AI Seculab은 독보적인 분석 기술과 폐쇄형 아키텍처를 통해<br />
+                                        가장 안전한 비즈니스 인텔리전스를 설계합니다.
+                                    </p>
+                                    <div className="flex justify-center gap-8">
+                                        <a href="#expertise" className="px-12 py-5 bg-slate-900 text-white dark:bg-indigo-600 text-[10px] tracking-[0.3em] uppercase hover:scale-105 transition-all">Explore Expertise</a>
+                                        <a href="#contact" className="px-12 py-5 border border-slate-200 dark:border-white/10 text-[10px] tracking-[0.3em] uppercase hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Contact Us</a>
+                                    </div>
                                 </div>
                             </section>
 
-                            <section id="contact" className="py-40 bg-slate-50 dark:bg-slate-900/30">
-                                <div className="max-w-3xl mx-auto px-8">
-                                    <h2 className="text-3xl mb-16 text-center">Inquiry</h2>
-                                    <form onSubmit={handleInquirySubmit} className="space-y-10">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                            <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="성함" className="bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full" required />
-                                            <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="이메일" className="bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full" required />
+                            {/* Vision Section */}
+                            <section id="vision" className="py-40 bg-white dark:bg-slate-950 border-y border-black/5 dark:border-white/5">
+                                <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+                                    <div>
+                                        <span className="text-[9px] tracking-[0.4em] text-indigo-500 uppercase mb-6 block">Our Philosophy</span>
+                                        <h3 className="text-4xl mb-10 leading-snug font-normal">비전: 통제 가능한 지능형 보안</h3>
+                                        <p className="text-slate-500 leading-loose text-lg">
+                                            우리는 클라우드에 의존하지 않는 독립적인 보안 인텔리전스를 지향합니다.
+                                            데이터가 외부로 유출되지 않는 환경에서 AI의 강력한 탐지 성능을 100% 활용하는 것,
+                                            것이 AI Seculab이 정의하는 '통제 가능한 보안'의 시작입니다.
+                                        </p>
+                                    </div>
+                                    <div className="glass p-12 aspect-video flex flex-col justify-center">
+                                        <div className="flex justify-between items-end mb-8">
+                                            <div className="text-xs tracking-widest text-slate-400">SECURE DATA FLOW</div>
+                                            <div className="text-3xl text-indigo-500">99.9%</div>
                                         </div>
-                                        <textarea value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="상세 문의 내용" rows="4" className="bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full resize-none" required></textarea>
-                                        <button className="w-full py-5 bg-slate-900 text-white dark:bg-indigo-600 text-[10px] tracking-widest uppercase hover:opacity-90 transition-all">Submit to Secure Pipeline</button>
+                                        <div className="space-y-4">
+                                            <div className="h-1 bg-slate-100 dark:bg-slate-800 w-full rounded-full overflow-hidden">
+                                                <div className="h-full bg-indigo-500 w-[95%]"></div>
+                                            </div>
+                                            <div className="h-1 bg-slate-100 dark:bg-slate-800 w-full rounded-full overflow-hidden">
+                                                <div className="h-full bg-slate-400 w-[80%]"></div>
+                                            </div>
+                                            <div className="h-1 bg-slate-100 dark:bg-slate-800 w-full rounded-full overflow-hidden">
+                                                <div className="h-full bg-slate-300 w-[60%]"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Expertise & Intelligence Demo Section */}
+                            <section id="expertise" className="py-40 bg-slate-50 dark:bg-slate-900/20">
+                                <div className="max-w-7xl mx-auto px-8">
+                                    <div className="text-center mb-32">
+                                        <span className="text-[10px] tracking-[0.5em] text-slate-400 uppercase mb-8 block">Domain Expertise</span>
+                                        <h2 className="text-5xl font-normal">최첨단 보안 기술력</h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                                        {/* Service 1 */}
+                                        <div className="p-12 glass group hover:bg-slate-900 dark:hover:bg-indigo-600 transition-all duration-500">
+                                            <div className="text-3xl mb-10 group-hover:text-white transition-colors">01</div>
+                                            <h4 className="text-xl mb-6 group-hover:text-white transition-colors">AI 취약점 탐지</h4>
+                                            <p className="text-slate-400 text-sm leading-relaxed mb-10 group-hover:text-slate-200 transition-colors">
+                                                지능형 정적/동적 분석을 통해 알려지지 않은 위협을 선제적으로 식별합니다.
+                                            </p>
+                                            <div className="h-32">
+                                                <canvas id="chart-vuln" width="200" height="100"></canvas>
+                                            </div>
+                                        </div>
+                                        {/* Service 2 */}
+                                        <div className="p-12 glass group hover:bg-slate-900 dark:hover:bg-indigo-600 transition-all duration-500">
+                                            <div className="text-3xl mb-10 group-hover:text-white transition-colors">02</div>
+                                            <h4 className="text-xl mb-6 group-hover:text-white transition-colors">상시 보안 컨설팅</h4>
+                                            <p className="text-slate-400 text-sm leading-relaxed mb-10 group-hover:text-slate-200 transition-colors">
+                                                기업별 맞춤형 보안 로드맵 수립 및 인증 대응 가이드를 제공합니다.
+                                            </p>
+                                            <div className="flex items-center gap-2 group-hover:text-white transition-colors">
+                                                <span className="text-[10px] tracking-widest uppercase">Compliance Level</span>
+                                                <div className="flex-grow h-[1px] bg-slate-200 dark:bg-white/10 group-hover:bg-white/30"></div>
+                                                <span className="text-xs">A+</span>
+                                            </div>
+                                        </div>
+                                        {/* Service 3 */}
+                                        <div className="p-12 glass group hover:bg-slate-900 dark:hover:bg-indigo-600 transition-all duration-500">
+                                            <div className="text-3xl mb-10 group-hover:text-white transition-colors">03</div>
+                                            <h4 className="text-xl mb-6 group-hover:text-white transition-colors">위협 인텔리전스</h4>
+                                            <p className="text-slate-400 text-sm leading-relaxed mb-10 group-hover:text-slate-200 transition-colors">
+                                                글로벌 보안 커뮤니티와 연계된 실시간 위협 정보 데이터베이스를 운용합니다.
+                                            </p>
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between text-[9px] group-hover:text-white transition-colors">
+                                                    <span>SQL INJECTION</span>
+                                                    <span>DETECTED</span>
+                                                </div>
+                                                <div className="flex justify-between text-[9px] group-hover:text-white transition-colors opacity-50">
+                                                    <span>XSS ATTACK</span>
+                                                    <span>BLOCKED</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Contact Section */}
+                            <section id="contact" className="py-40 bg-white dark:bg-slate-950">
+                                <div className="max-w-3xl mx-auto px-8 text-center">
+                                    <span className="text-[10px] tracking-[0.5em] text-indigo-500 uppercase mb-8 block">Start a Project</span>
+                                    <h2 className="text-4xl mb-20 font-normal">전문가 상담 및 문의</h2>
+                                    <form onSubmit={handleInquirySubmit} className="space-y-12 text-left">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                            <div className="relative">
+                                                <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="peer bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full focus:border-indigo-500 transition-all" required />
+                                                <label className="absolute left-0 top-3 text-slate-400 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-indigo-500">성함 / Company</label>
+                                            </div>
+                                            <div className="relative">
+                                                <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="peer bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full focus:border-indigo-500 transition-all" required />
+                                                <label className="absolute left-0 top-3 text-slate-400 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-indigo-500">이메일 주소</label>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <textarea value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} rows="4" className="peer bg-transparent border-b border-black/10 dark:border-white/10 py-3 outline-none w-full resize-none focus:border-indigo-500 transition-all" required></textarea>
+                                            <label className="absolute left-0 top-3 text-slate-400 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-indigo-500">상세 문의 내용</label>
+                                        </div>
+                                        <button className="w-full py-6 bg-slate-900 text-white dark:bg-indigo-600 text-[11px] tracking-[0.4em] uppercase hover:scale-[1.01] transition-all">Submit Secure Inquiry</button>
                                     </form>
                                 </div>
                             </section>
