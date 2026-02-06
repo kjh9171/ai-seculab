@@ -165,21 +165,42 @@
                 }
             };
 
-            // 관리자 인증: 가입 절차 없이 사전 합의된 마스터 암호 방식 채택
-            const handleAdminAccess = () => {
+            // 관리자 인증: Firebase Remote Config(Firestore) 기반의 동적 인증 체계
+            // 암호 분실 시 Firebase 콘솔에서 'settings/admin_config' 문서의 'passcode' 필드를 수정하여 복구 가능합니다.
+            const handleAdminAccess = async () => {
                 if (view === 'admin') {
                     setView('home');
                     return;
                 }
-                // 실무에서 가장 빠르고 효율적인 '마스터 패스코드' 방식
-                // 별도의 복잡한 가입/로그인 UI 없이 즉각적인 관리 업무 진입 가능
-                const pw = prompt('보안 전문가 전용 암호를 입력하십시오:');
-                if (pw === 'seculab2026') {
-                    setIsAdminAuth(true);
-                    setView('admin');
-                    fetchInquiries();
-                } else {
-                    alert('권한이 없습니다.');
+
+                try {
+                    await auth.signInAnonymously();
+                    // Firebase에서 현재 설정된 마스터 암호를 가져옴
+                    const configDoc = await db.collection(`/artifacts/${APP_ID}/public/data/settings`).doc('admin_config').get();
+
+                    // 초기 설정이 없는 경우 기본값 'seculab2026' 사용
+                    let secureCode = 'seculab2026';
+                    if (configDoc.exists) {
+                        secureCode = configDoc.data().passcode;
+                    } else {
+                        // 초기 실행 시 설정을 생성 (최초 1회만 실행됨)
+                        await db.collection(`/artifacts/${APP_ID}/public/data/settings`).doc('admin_config').set({
+                            passcode: 'seculab2026',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+
+                    const pw = prompt('보안 전문가 전용 암호를 입력하십시오:');
+                    if (pw === secureCode) {
+                        setIsAdminAuth(true);
+                        setView('admin');
+                        fetchInquiries();
+                    } else {
+                        alert('권한이 없거나 암호가 일치하지 않습니다.');
+                    }
+                } catch (error) {
+                    console.error("Auth Error:", error);
+                    alert('보안 서버와 통신할 수 없습니다. 잠시 후 다시 시도하십시오.');
                 }
             };
 
