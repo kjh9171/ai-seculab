@@ -10,6 +10,10 @@
     "qrcode": "^1.5.3"
   },
   "scripts": {
-    "start": "node server.js"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.65.0"
   }
 }

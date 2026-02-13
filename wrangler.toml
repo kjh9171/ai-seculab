@@ -1,0 +1,15 @@
+name = "ai-seculab"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# 환경 변수 설정 (필요 시)
+
+[[kv_namespaces]]
+binding = "DB"
+id = "PLACEHOLDER_ID" # 실제 배포 시 wrangler kv:namespace create DB를 통해 생성된 ID로 교체 필요
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
