@@ -1,5 +1,8 @@
-import * as otplib from "otplib";
-import * as qrcode from "qrcode";
+import * as otplib_ns from "otplib";
+import * as qrcode_ns from "qrcode";
+
+const otplib = otplib_ns.authenticator ? otplib_ns : otplib_ns.default;
+const qrcode = qrcode_ns.toString ? qrcode_ns : qrcode_ns.default;
 
 // 데이터 초기화 및 로드 함수 (KV 사용)
 const initData = async (env) => {
@@ -19,7 +22,8 @@ const initData = async (env) => {
 };
 
 const loadData = async (env) => {
-  return await env.DB.get("site_data", "json");
+  const data = await env.DB.get("site_data", "json");
+  return data || { inquiries: [], config: { setupDone: false } };
 };
 
 const saveData = async (env, data) => {
@@ -62,7 +66,9 @@ export default {
         "AI-Seculab",
         data.config.secret,
       );
-      const qrImage = await qrcode.toDataURL(otpauth);
+      // toDataURL은 canvas 모듈을 필요로 할 수 있으므로, 서버리스 호환성이 높은 toString('svg')를 사용합니다.
+      const qrSvg = await qrcode.toString(otpauth, { type: 'svg' });
+      const qrImage = `data:image/svg+xml;base64,${Buffer.from(qrSvg).toString('base64')}`;
       return new Response(JSON.stringify({ qr: qrImage }), {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
