@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [[kv_namespaces]]
 binding = "DB"
-id = "PLACEHOLDER_ID" # 실제 배포 시 wrangler kv:namespace create DB를 통해 생성된 ID로 교체 필요
+id = "0d816f43804d400abe81df5bc45e5313"
 
 [assets]
 directory = "./public"
